@@ -20,11 +20,11 @@ def parse_movie_soup(movie_in: BeautifulSoup):
     """This one is for parsing film info to a dictionary"""
 
     movie_data = {}
-
     movie_data['position'] = movie_in.find('div', class_='ranking__position').text
+    movie_data['title'] = movie_in.find('a', class_='film__link').text.strip()
     if movie_in.find('div', class_='film__original'):
-        movie_data['original_title'] = movie_in.find('div', class_='film__original').text
-
+        movie_data['original_title'] = movie_in.find('div', class_='film__original').text.strip()
+    movie_data['year'] = movie_in.find(class_='film__production-year').text.strip().replace(')', '').replace('(', '')
     return movie_data
 
 
