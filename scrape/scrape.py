@@ -1,8 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 
+movies_rank_link = 'https://www.filmweb.pl/ranking/vod/netflix'
+tv_series_link = 'https://www.filmweb.pl/ranking/vod/netflix/serial'
 
-r = requests.get('https://www.filmweb.pl/ranking/vod/netflix').text
+r = requests.get(movies_rank_link).text
 soup = BeautifulSoup(r, 'lxml')
 
 
@@ -15,14 +17,21 @@ def get_movies_soup():
 
 
 def parse_movie_soup(movie_in: BeautifulSoup):
-    movie_dict = {}
-    x = movie_in.find('div', class_='ranking__position')
-    foo = 'bar'
+    """This one is for parsing film info to a dictionary"""
+
+    movie_data = {}
+
+    movie_data['position'] = movie_in.find('div', class_='ranking__position').text
+    if movie_in.find('div', class_='film__original'):
+        movie_data['original_title'] = movie_in.find('div', class_='film__original').text
+
+    return movie_data
 
 
 raw_list = get_movies_soup()
 
+movies = []
 for movie in raw_list:
-    parse_movie_soup(movie)
+    movies.append(parse_movie_soup(movie))
 
-print(raw_list)
+print(movies)
