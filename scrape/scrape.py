@@ -1,47 +1,52 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import time
+
 
 """This part is for developing/testing offline"""
-with open('scrape/movies.html', "r", encoding="utf-8") as file:
-    movies_html = file.read()
-with open('scrape/tv_series.html', "r", encoding="utf-8") as file:
-    tv_series_html = file.read()
+# with open('scrape/movies.html', "r", encoding="utf-8") as file:
+#     movies_html = file.read()
+# with open('scrape/tv_series.html', "r", encoding="utf-8") as file:
+#     tv_series_html = file.read()
 
 
 class Scrape:
 
-    # MOVIES_SOURCE = 'https://www.filmweb.pl/ranking/vod/netflix'
-    # TV_SOURCE = 'https://www.filmweb.pl/ranking/vod/netflix/serial'
-    MOVIES_SOURCE = movies_html
-    TV_SOURCE = tv_series_html
+    MOVIES_SOURCE = 'https://www.filmweb.pl/ranking/vod/netflix'
+    TV_SOURCE = 'https://www.filmweb.pl/ranking/vod/netflix/serial'
+
+    # those are for testing offline
+    # MOVIES_SOURCE = movies_html
+    # TV_SOURCE = tv_series_html
 
     def export_json(self, json_content, req_type):
         """This method saves json data to file"""
 
-        path = ''
-        current_date = ''
+        path = 'scrape/export/'
+        current_date = time.strftime("%Y%m%dT%H%M%S")
 
         if req_type.upper() == 'TV':
-            with open('tv_series.json', 'w') as outfile:
-                json.dump(json_content, outfile)
+            with open(f'{path}TV_SERIES_{current_date}.json', 'w', encoding='utf8') as outfile:
+                json.dump(json_content, outfile, ensure_ascii=False)
 
         if req_type.upper() == 'MOVIE':
-            with open('movies.json', 'w') as outfile:
-                json.dump(json_content, outfile)
+            with open(f'{path}MOVIES_{current_date}.json', 'w', encoding='utf8') as outfile:
+                json.dump(json_content, outfile, ensure_ascii=False)
 
-    def get_data_to_json(self, req_type: str = 'all'):
+    def get_data_to_json(self, req_type: str = ''):
         """Export json file for tv series, films or both by default"""
 
+        # this exports json if method called with a parameter
         if req_type.upper() == 'TV' or req_type.upper() == 'MOVIE':
             json_content = self.get_ranks_list(req_type)
             self.export_json(json_content, req_type)
 
+        # this exports json if method called without a parameter
         else:
             for req_type in ['TV', 'MOVIE']:
                 json_content = self.get_ranks_list(req_type)
                 self.export_json(json_content, req_type)
-
 
     def get_ranks_list(self, req_type: str):
         """This is the main method - it returns list of dictionaries
@@ -54,14 +59,21 @@ class Scrape:
         else:
             print(f'The given parameter {req_type} is incorrect.')
 
-        return movies_list
+        if movies_list:
+            return movies_list
+
+        return False
 
     def get_movies(self, soup_source: str):
         """This method returns a list of dictionaries for positions in a rank"""
 
-        # get_html = requests.get(soup_source).text
-        # soup = BeautifulSoup(get_html, 'lxml')
-        soup = BeautifulSoup(soup_source, 'lxml')
+        # this is for scraping
+        get_html = requests.get(soup_source).text
+        soup = BeautifulSoup(get_html, 'lxml')
+
+        # this one is for testing offline
+        # soup = BeautifulSoup(soup_source, 'lxml')
+
         rank = soup.find('div', class_='ranking__list')
         raw_movies_list = rank.find_all('div', class_='item place')
 
@@ -88,5 +100,5 @@ class Scrape:
 
 
 scraper = Scrape()
-scraper.get_data_to_json('movie')
+scraper.get_data_to_json()
 
