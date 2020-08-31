@@ -3,16 +3,16 @@ from bs4 import BeautifulSoup
 import json
 import time
 
-
 """This part is for developing/testing offline"""
-# with open('scrape/movies.html', "r", encoding="utf-8") as file:
+
+
+# with open('scrape/test_data/movies.html', "r", encoding="utf-8") as file:
 #     movies_html = file.read()
-# with open('scrape/tv_series.html', "r", encoding="utf-8") as file:
+# with open('scrape/test_data/tv_series.html', "r", encoding="utf-8") as file:
 #     tv_series_html = file.read()
 
 
 class Scrape:
-
     MOVIES_SOURCE = 'https://www.filmweb.pl/ranking/vod/netflix'
     TV_SOURCE = 'https://www.filmweb.pl/ranking/vod/netflix/serial'
 
@@ -27,12 +27,16 @@ class Scrape:
         current_date = time.strftime("%Y%m%dT%H%M%S")
 
         if req_type.upper() == 'TV':
-            with open(f'{path}TV_SERIES_{current_date}.json', 'w', encoding='utf8') as outfile:
+            file_dir_tv = f'{path}TV_SERIES_{current_date}.json'
+            with open(file_dir_tv, 'w', encoding='utf8') as outfile:
                 json.dump(json_content, outfile, ensure_ascii=False)
+            print(f'Netflix Tv-series charts exported to \'{file_dir_tv}\'.')
 
         if req_type.upper() == 'MOVIE':
-            with open(f'{path}MOVIES_{current_date}.json', 'w', encoding='utf8') as outfile:
+            file_dir_movie = f'{path}MOVIES_{current_date}.json'
+            with open(file_dir_movie, 'w', encoding='utf8') as outfile:
                 json.dump(json_content, outfile, ensure_ascii=False)
+            print(f'Netflix movies charts exported to \'{file_dir_movie}\'.')
 
     def get_data_to_json(self, req_type: str = ''):
         """Export json file for tv series, films or both by default"""
@@ -91,14 +95,14 @@ class Scrape:
         movie_data['title'] = movie_in.find('a', class_='film__link').text.strip()
         if movie_in.find('div', class_='film__original'):
             movie_data['original_title'] = movie_in.find('div', class_='film__original').text.strip()
-        movie_data['year'] = movie_in.find(class_='film__production-year').text.strip().replace(')', '').replace('(', '')
+        movie_data['year'] = movie_in.find(class_='film__production-year').text.strip().replace(')', '').replace('(',
+                                                                                                                 '')
         movie_data['rating'] = movie_in.find(class_='rate__value').text
         raw_rate_count = movie_in.find(class_='rate__count').text
-        clean_rate_count = raw_rate_count.replace('oceny','').replace('ocen','').strip().replace(' ','')
+        clean_rate_count = raw_rate_count.replace('oceny', '').replace('ocen', '').strip().replace(' ', '')
         movie_data['rate_count'] = clean_rate_count
         return movie_data
 
 
 scraper = Scrape()
 scraper.get_data_to_json()
-
