@@ -69,7 +69,7 @@ class Scrape:
         return False
 
     def get_movies(self, soup_source: str):
-        """This method returns a list of dictionaries for positions in a rank"""
+        """This method returns a list of dictionaries for positions in a rank """
 
         # this is for scraping
         get_html = requests.get(soup_source).text
