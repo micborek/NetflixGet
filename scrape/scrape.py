@@ -3,12 +3,18 @@ from bs4 import BeautifulSoup
 import json
 import time
 
+from constants import (
+    TV_SOURCE,
+    MOVIES_SOURCE
+)
+
 
 class Scraper:
 
     def scrape(self):
         """Main logic behind the scraper"""
-        self.get_movies()
+
+        self.get_ranks(TV_SOURCE)
 
     def export_json(self, json_content, req_type):
         """This method saves json data to file"""
@@ -47,9 +53,9 @@ class Scraper:
         for a requested type - either movies - 'movie' or tv series - 'tv'"""
 
         if req_type.upper() == 'TV':
-            movies_list = self.get_movies(self.TV_SOURCE)
+            movies_list = self.get_movies(TV_SOURCE)
         elif req_type.upper() == 'MOVIE':
-            movies_list = self.get_movies(self.MOVIES_SOURCE)
+            movies_list = self.get_movies(MOVIES_SOURCE)
         else:
             print(f'The given parameter {req_type} is incorrect.')
 
@@ -58,38 +64,28 @@ class Scraper:
 
         return False
 
-    def get_movies(self, soup_source: str):
+    def get_ranks(self, rank_site_url: str):
         """This method returns a list of dictionaries for positions in a rank """
 
-        get_html = requests.get(soup_source).text
+        get_html = requests.get(rank_site_url).text
         soup = BeautifulSoup(get_html, 'lxml')
 
-        # this one is for testing offline
-        # soup = BeautifulSoup(soup_source, 'lxml')
-
         rank = soup.find('div', class_='page__container rankingTypeSection__container')
-        raw_movies_list = rank.find_all('div', class_='item place')
+        raw_movies_list = rank.find_all('div', class_='rankingType hasVod')
 
-        movies_list = []
-        for raw_movie in raw_movies_list:
-            movies_list.append(self.parse_movie_soup(raw_movie))
+        return [self.parse_rank_position_soup(raw_movie) for raw_movie in raw_movies_list]
 
-        return movies_list
-
-    def parse_movie_soup(self, movie_in: BeautifulSoup):
+    def parse_rank_position_soup(self, rank_position_div_src: BeautifulSoup):
         """This one is for parsing film/tv series rank info to a dictionary"""
 
         movie_data = {}
-        movie_data['position'] = movie_in.find('div', class_='ranking__position').text
-        movie_data['title'] = movie_in.find('a', class_='film__link').text.strip()
-        if movie_in.find('div', class_='film__original'):
-            movie_data['original_title'] = movie_in.find('div', class_='film__original').text.strip()
-        movie_data['year'] = movie_in.find(class_='film__production-year').text.strip().replace(')', '').replace('(',
-                                                                                                                 '')
-        movie_data['rating'] = movie_in.find(class_='rate__value').text
-        raw_rate_count = movie_in.find(class_='rate__count').text
-        clean_rate_count = raw_rate_count.replace('oceny', '').replace('ocen', '').strip().replace(' ', '')
-        movie_data['rate_count'] = clean_rate_count
+        movie_data['position'] = rank_position_div_src.find('span', class_='rankingType__position').text
+        movie_data['title'] = rank_position_div_src.find('h2', class_='rankingType__title').text.strip()
+        # movie_data['year'] = rank_position_div_src.find(class_='film__production-year').text.strip().replace(')', '').replace('(','')
+        # movie_data['rating'] = rank_position_div_src.find(class_='rate__value').text
+        # raw_rate_count = rank_position_div_src.find(class_='rate__count').text
+        # clean_rate_count = raw_rate_count.replace('oceny', '').replace('ocen', '').strip().replace(' ', '')
+        # movie_data['rate_count'] = clean_rate_count
         return movie_data
 
 
