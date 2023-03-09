@@ -3,22 +3,12 @@ from bs4 import BeautifulSoup
 import json
 import time
 
-"""This part is for developing/testing offline"""
 
+class Scraper:
 
-# with open('scrape/test_data/movies.html', "r", encoding="utf-8") as file:
-#     movies_html = file.read()
-# with open('scrape/test_data/tv_series.html', "r", encoding="utf-8") as file:
-#     tv_series_html = file.read()
-
-
-class Scrape:
-    MOVIES_SOURCE = 'https://www.filmweb.pl/ranking/vod/netflix'
-    TV_SOURCE = 'https://www.filmweb.pl/ranking/vod/netflix/serial'
-
-    # those are for testing offline
-    # MOVIES_SOURCE = movies_html
-    # TV_SOURCE = tv_series_html
+    def scrape(self):
+        """Main logic behind the scraper"""
+        self.get_movies()
 
     def export_json(self, json_content, req_type):
         """This method saves json data to file"""
@@ -71,14 +61,13 @@ class Scrape:
     def get_movies(self, soup_source: str):
         """This method returns a list of dictionaries for positions in a rank """
 
-        # this is for scraping
         get_html = requests.get(soup_source).text
         soup = BeautifulSoup(get_html, 'lxml')
 
         # this one is for testing offline
         # soup = BeautifulSoup(soup_source, 'lxml')
 
-        rank = soup.find('div', class_='ranking__list')
+        rank = soup.find('div', class_='page__container rankingTypeSection__container')
         raw_movies_list = rank.find_all('div', class_='item place')
 
         movies_list = []
@@ -104,5 +93,6 @@ class Scrape:
         return movie_data
 
 
-scraper = Scrape()
-scraper.get_data_to_json()
+if __name__ == "__main__":
+    scraper = Scraper()
+    scraper.scrape()
