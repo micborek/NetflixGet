@@ -2,6 +2,7 @@ import time
 import json
 from bs4 import BeautifulSoup
 import requests
+from random import randint
 
 from constants import (
     EXPORT_PATH,
@@ -42,6 +43,7 @@ def parse_rank_position_soup(rank_position_html_src: BeautifulSoup):
 def get_ranks(rank_site_url: str):
     """This method returns a list of dictionaries for positions in a rank """
 
+    print(f'Connecting to {rank_site_url}') # change to log debug
     get_html = requests.get(rank_site_url).text
     soup = BeautifulSoup(get_html, 'lxml')
 
@@ -49,3 +51,14 @@ def get_ranks(rank_site_url: str):
     raw_movies_list = rank.find_all('div', class_='rankingType hasVod')
 
     return [parse_rank_position_soup(raw_movie) for raw_movie in raw_movies_list]
+
+
+def choose_random_position(positions: list) -> dict:
+    """Choose random position from a given list"""
+
+    if positions:
+        random_position = randint(1, len(positions)-1)
+        return positions[random_position]
+    else:
+        #log error
+        return

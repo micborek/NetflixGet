@@ -6,14 +6,16 @@ from constants import (
 
 
 def user_io_handler():
+    scraper = Scraper()
     while True:
         users_choice = input('Would you like to choose a random (T)v-series or a (M)ovie? You can also(Q)uit').strip().lower()
         if users_choice in ('m', 't'):
             if users_choice == 't':
-                scraper = Scraper(TV_REQUEST_TYPE)
+                scraper.scrape(TV_REQUEST_TYPE)
+                print(scraper.randomize_tv())
             else:
-                scraper = Scraper(MOVIES_REQUEST_TYPE)
-            scraper.scrape()
+                scraper.scrape(MOVIES_REQUEST_TYPE)
+                scraper.randomize_movies()
         elif users_choice == 'q':
             print('Program stopped.')
             break
