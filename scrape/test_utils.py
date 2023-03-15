@@ -1,5 +1,5 @@
 import json
-
+import pytest
 
 # def test_export_json_to_file():
 #     from utils import export_json_to_file
@@ -11,6 +11,7 @@ import json
 #
 #     assert True
 
+
 def test_choose_random_position():
     from utils import choose_random_position
 
@@ -19,4 +20,4 @@ def test_choose_random_position():
     print(choose_random_position(test_tv_list))
     print(choose_random_position(test_movie_list))
 
-test_choose_random_position()
+    assert True
