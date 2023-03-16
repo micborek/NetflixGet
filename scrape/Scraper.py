@@ -9,6 +9,10 @@ from utils import (
     choose_random_position
 )
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
 
 class Scraper:
     """Scraper class"""
@@ -16,6 +20,7 @@ class Scraper:
     def __init__(self):
         self.movies_list = []
         self.tv_list = []
+        self.random_choice = {}
 
     def scrape(self, request_type):
         """Scrape data for request types"""
@@ -25,20 +30,21 @@ class Scraper:
         elif request_type == MOVIES_REQUEST_TYPE and not self.movies_list:
             self.movies_list = get_ranks(MOVIES_SOURCE_URL)
         else:
-            print('Using already scraped data.') # log
-
+            log.debug('Using already scraped data.')
 
     def randomize_tv(self):
-        return choose_random_position(self.tv_list)
+        """Choose random position for TV series"""
+        self.random_choice = choose_random_position(self.tv_list)
 
     def randomize_movies(self):
-        return choose_random_position(self.movies_list)
+        """Choose random position for movies"""
+        self.random_choice = choose_random_position(self.movies_list)
 
     def print_result(self):
-        pass
-
+        """Print random position result"""
+        print(self.random_choice)
 
     def export_json_to_file(self):
-        """Additional method for json export"""
+        """Export scraped data to json"""
 
-        #TODO: develop this
+        # TODO: develop this

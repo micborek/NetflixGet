@@ -10,6 +10,10 @@ from constants import (
     MOVIES_REQUEST_TYPE
 )
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+
 
 def export_json_to_file(json_content, request_type):
     """This method saves json data to a file"""
@@ -20,10 +24,9 @@ def export_json_to_file(json_content, request_type):
         export_file_path = f'{EXPORT_PATH}{request_type}_{current_date}.json'
         with open(export_file_path, 'w', encoding='utf8') as outfile:
             json.dump(json_content, outfile, ensure_ascii=False)
-        #TODO: logger instead of print
-        print(f'Netflix {request_type} charts exported to \'{export_file_path}\'.')
+        log.info(f'Netflix {request_type} charts exported to \'{export_file_path}\'.')
     else:
-        print('Wrong request type passed.')
+        log.error('Wrong request type passed.')
 
 
 def parse_rank_position_soup(rank_position_html_src: BeautifulSoup):
@@ -43,7 +46,7 @@ def parse_rank_position_soup(rank_position_html_src: BeautifulSoup):
 def get_ranks(rank_site_url: str):
     """This method returns a list of dictionaries for positions in a rank """
 
-    print(f'Connecting to {rank_site_url}') # change to log debug
+    log.debug(f'Connecting to {rank_site_url}')
     get_html = requests.get(rank_site_url).text
     soup = BeautifulSoup(get_html, 'lxml')
 
@@ -60,5 +63,5 @@ def choose_random_position(positions: list) -> dict:
         random_position = randint(1, len(positions)-1)
         return positions[random_position]
     else:
-        #log error
-        return
+        log.error('Cannot choose random position from empty list.')
+        return {}
